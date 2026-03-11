@@ -10,9 +10,12 @@ st.set_page_config(page_title="Pneumoflag", page_icon="🫁")
 st.title("🫁 Pneumoflag Demo")
 st.write("흉부 X-ray 이미지를 업로드하면 폐렴 확률과 불확실성(σ), 그리고 Grad-CAM을 보여줍니다.")
 
-default_api = os.environ.get("API_URL", "http://localhost:8000/predict")
-API_URL = st.text_input("API URL", default_api)
-GRADCAM_URL = API_URL.replace("/predict", "/gradcam")
+# base URL만 받도록 수정
+default_api_base = os.environ.get("API_BASE_URL", "http://localhost:8000")
+API_BASE_URL = st.text_input("API Base URL", default_api_base).rstrip("/")
+
+PREDICT_URL = f"{API_BASE_URL}/predict"
+GRADCAM_URL = f"{API_BASE_URL}/gradcam"
 
 uploaded = st.file_uploader("X-ray 이미지를 업로드하세요", type=["png", "jpg", "jpeg"])
 
@@ -25,7 +28,11 @@ if uploaded is not None:
         if st.button("분석하기"):
             with st.spinner("분석 중..."):
                 files = {"file": (uploaded.name, uploaded.getvalue(), uploaded.type)}
-                r = requests.post(API_URL, files=files, timeout=120)
+                try:
+                    r = requests.post(PREDICT_URL, files=files, timeout=120)
+                except requests.exceptions.RequestException as e:
+                    st.error(f"요청 실패: {e}")
+                    st.stop()
 
             if r.status_code != 200:
                 st.error(f"API 오류: {r.status_code}\n{r.text}")
@@ -42,7 +49,11 @@ if uploaded is not None:
         if st.button("Grad-CAM 보기"):
             with st.spinner("Grad-CAM 생성 중..."):
                 files = {"file": (uploaded.name, uploaded.getvalue(), uploaded.type)}
-                r2 = requests.post(GRADCAM_URL, files=files, timeout=120)
+                try:
+                    r2 = requests.post(GRADCAM_URL, files=files, timeout=120)
+                except requests.exceptions.RequestException as e:
+                    st.error(f"요청 실패: {e}")
+                    st.stop()
 
             if r2.status_code != 200:
                 st.error(f"Grad-CAM API 오류: {r2.status_code}\n{r2.text}")
