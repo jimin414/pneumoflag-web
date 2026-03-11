@@ -9,6 +9,9 @@ import base64
 from io import BytesIO
 from gradcam_core import make_gradcam_overlay
 
+# CPU로 고정
+device = torch.device("cpu")
+
 app = FastAPI()
 
 # 1. 모델 구조 정의 (Colab에서 사용한 것과 동일해야 함)
@@ -51,10 +54,10 @@ async def predict(file: UploadFile = File(...)):
     data = await file.read()
     image = Image.open(io.BytesIO(data)).convert("RGB")
     
-    # TTA 실행 (8번 반복 추론)
+    # TTA 실행 (데모용:3번 반복 추론)(원래 8번)
     probs = []
     with torch.no_grad():
-        for _ in range(8):
+        for _ in range(3):
             img_tta = tta_transforms(image).unsqueeze(0).to(device)
             logits = model(img_tta)
             prob = torch.sigmoid(logits).item() # 0~1 사이 확률
