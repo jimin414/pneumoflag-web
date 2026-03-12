@@ -9,8 +9,7 @@ from PIL import Image
 st.set_page_config(page_title="Pneumoflag", page_icon="🫁")
 
 st.title("🫁 Pneumoflag Demo")
-st.write("흉부 X-ray 이미지를 업로드하면 폐렴 확률과 불확실성(σ), 그리고 Grad-CAM을 보여줍니다.")
-
+st.write("흉부 X-ray 이미지를 업로드하면 예측 결과, 불확실성(σ), Elusive Flag, 그리고 Grad-CAM을 보여줍니다.")
 # -----------------------------
 # session_state 초기화
 # -----------------------------
@@ -130,11 +129,31 @@ if uploaded is not None:
     if st.session_state.analysis_result is not None:
         data = st.session_state.analysis_result
 
+        sigma = data["uncertainty_sigma"]
+
+        # [추가] sigma 해석 문장
+        if sigma < 0.02:
+            sigma_text = "낮음"
+        elif sigma < 0.05:
+            sigma_text = "보통"
+        else:
+            sigma_text = "높음"
+
         st.metric("Prediction", data["prediction"])
         st.metric("Mean Probability (μ)", data["mean_probability"])
-        st.metric("Uncertainty (σ)", data["uncertainty_sigma"])
+        st.metric("Uncertainty (σ)", f'{data["uncertainty_sigma"]} ({sigma_text})')
         st.write("Reject:", "✅ YES" if data["is_rejected"] else "❌ NO")
         st.info(data["message"])
+
+        # [추가] TTA 확률 표시
+        if "tta_probabilities" in data:
+            st.write("TTA Probabilities:", data["tta_probabilities"])
+
+        # [추가] Elusive 기준 설명
+        with st.expander("ℹ️ Elusive Case 기준 보기"):
+            st.write("- TTA 결과의 변동성(σ)이 크면 애매한 케이스로 간주합니다.")
+            st.write("- 평균 확률(μ)이 0.5 근처이면 모델의 확신이 낮다고 봅니다.")
+            st.write("- Reject=YES이면 의료진의 추가 확인이 필요한 사례입니다.")
 
     # -----------------------------
     # Grad-CAM 결과 표시

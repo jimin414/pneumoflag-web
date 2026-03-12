@@ -39,7 +39,7 @@ device = torch.device("cpu")
 model.to(device)
 model.eval()
 
-# 3. TTA용 변형 설정 (사용자님의 "정상 TTA" 방식 반영)
+# 3. TTA용 변형 설정 ("정상 TTA" 방식 반영)
 tta_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomRotation(10),
@@ -68,8 +68,15 @@ async def predict(file: UploadFile = File(...)):
     sigma = np.std(probs)
 
     # 4. Reject 전략 적용 (시그마 기준)
-    REJECT_THRESHOLD = 0.1  # 실험 결과에 따라 조정 가능
-    is_rejected = bool(sigma > REJECT_THRESHOLD)
+    REJECT_THRESHOLD = 0.03  # 실험 결과에 따라 조정 가능
+    
+    MU_LOW = 0.4        # 애매 확률 구간
+    MU_HIGH = 0.6
+
+    is_rejected = bool(
+        (sigma > REJECT_THRESHOLD) or
+        (MU_LOW <= mu <= MU_HIGH)
+    )
     
     result = "Pneumonia" if mu > 0.5 else "Normal"
     
@@ -78,7 +85,8 @@ async def predict(file: UploadFile = File(...)):
         "mean_probability": round(mu, 4),
         "uncertainty_sigma": round(sigma, 4),
         "is_rejected": is_rejected,
-        "message": "⚠️ 불확실성이 높아 재촬영을 권장합니다." if is_rejected else "분석 완료"
+        "message": "⚠️ 애매한 영상입니다. 의료진 확인이 필요합니다." if is_rejected else "분석 완료. 신뢰 가능한 예측입니다.",
+        "tta_probabilities": [round(float(p), 4) for p in probs]
     }
 
 @app.get("/")
