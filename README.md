@@ -41,10 +41,8 @@ PneumoFlag_Project_2026/
 * **DataLoader 최적화**: `num_workers=4`, `pin_memory=True`, `prefetch_factor=2`, `persistent_workers=True`를 적용해 CPU-GPU 간 데이터 병목(Data Starvation) 해소.
 
 ### 4.2 Class Imbalance Correction & Mixed Precision
-* **Loss Correction**: 소수 클래스(Pneumonia)의 재현율(Recall)을 확보하기 위해 양성 가중치 손실 함수 적용:
-  $$\text{pos\_weight} = \frac{n_{\text{negative}}}{n_{\text{positive}}}$$
+* **Loss Correction**: 소수 클래스(Pneumonia)의 재현율(Recall)을 확보하기 위해 양성 가중치 손실 함수 적용 (`pos_weight = n_negative / n_positive`)
 * **AMP (Automatic Mixed Precision)**: FP16/FP32 혼합 연산 및 `GradScaler`를 적용하여 GPU 메모리 버퍼를 최적화하고 속도 가속.
-
 ---
 
 ## 5. Experimental Results
