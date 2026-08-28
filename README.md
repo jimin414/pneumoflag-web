@@ -89,22 +89,10 @@ PneumoFlag_Project_2026/
   * **Coverage 0.95 (상위 5% Reject)**: Accuracy **99.86%**
   * **Coverage 0.60 (상위 40% Reject)**: Accuracy **100.0%** (완벽 신뢰 구간 달성)
 
----
-
-## 7. Artifacts & Google Drive Links
-
-프로젝트 산출물, 모델 가중치 및 상세 보고서 링크입니다.
-
-| Resource | Description | Link |
-| :--- | :--- | :---: |
-| **Google Drive Root** | 프로젝트 전체 데이터 및 산출물 폴더 | [Link](https://drive.google.com/drive/folders/YOUR_FOLDER_ID_HERE) |
-| **Final Report** | 상세 실험 결과 및 논문 형식 최종 보고서 (PDF/Docs) | [Link](https://docs.google.com/document/d/YOUR_DOC_ID_HERE) |
-| **Model Weights** | 학습 완료된 체크포인트 가중치 파일 (`.pth`) | [Link](https://drive.google.com/drive/folders/YOUR_WEIGHTS_FOLDER_ID_HERE) |
-| **Grad-CAM Visualizations** | 케이스별(TP, FP, FN) 고해상도 히트맵 시각화 데이터 | [Link](https://drive.google.com/drive/folders/YOUR_VIZ_FOLDER_ID_HERE) |
 
 ---
 
-## 8. Future Work
+## 7. Future Work
 
 * **Lung Segmentation 연계**: 소아 외 성인 데이터셋 확장을 위한 폐 영역 자동 분할 전처리 파이프라인 도입.
 * **Loss Function 고도화**: 클래스 불균형 해결을 위한 Focal Loss 적용 및 가중치 파라미터 최적화.
